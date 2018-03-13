@@ -63,11 +63,62 @@ Upon the first measurement input, the class sets the initial reading as the curr
 With a MeasurementPackage object as the input, the Kalman Filter parameters (state transition & process covariance) are updated based on the time difference between samples.
 
 #### 2.2.3 Update
-...
+If the measurement input is from the radar then the measurements are converted from polar coordinates to cartesian using Tools::CalculateJacobian() to calculate the measurement matrix for the Kalman Filter. Otherwise, the default matrices are used from intialization.
+
+	$ if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+	$ 	// Radar updates
+	$ 	ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
+	$ 	ekf_.R_ = R_radar_;
+	$ 	ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+	$ } else {
+	$ 	// Laser updates
+	$ 	ekf_.H_ = H_laser_;
+	$ 	ekf_.R_ = R_laser_;
+	$ 	ekf_.Update(measurement_pack.raw_measurements_);
+	$ }
 
 ### 2.3 Kalman_Filter.cpp
-...
+#### 2.3.1 Predict
+From the Udacity equation sheet, the model state is predicted as follows.
 
+	$ x_ = F_ * x_;
+	$ MatrixXd Ft = F_.transpose();
+	$ P_ = F_ * P_ * Ft + Q_;
+
+#### 2.3.2 Update
+
+	$ VectorXd z_pred = H_ * x_;
+	$ VectorXd y = z - z_pred;
+	$ MatrixXd Ht = H_.transpose();
+	$ MatrixXd S = H_ * P_ * Ht + R_;
+	$ MatrixXd Si = S.inverse();
+	$ MatrixXd PHt = P_ * Ht;
+	$ MatrixXd K = PHt * Si;
+
+	$ // New estimate state.
+	$ x_ = x_ + (K * y);
+	$ long x_size = x_.size();
+	$ MatrixXd I = MatrixXd::Identity(x_size, x_size);
+	$ P_ = (I - K * H_) * P_;
+
+#### 2.3.3 UpdateEKF
+
+	$ double px = x_(0);
+	$ double py = x_(1);
+	$ double vx = x_(2);
+	$ double vy = x_(3);
+
+	$ double rho = sqrt(px*px+py*py);
+	$ double theta = atan2(py,px);
+	$ double rho_dot = (px*vx+py*vy)/rho;
+
+	$ VectorXd Hj(3);
+	$ Hj << rho, theta, rho_dot;
+
+	$ // Limit angle to between -2*Pi and 2*Pi
+	$ VectorXd y = (z - Hj);
+	$ double factor = (y(1) >= 0) ? floor(y(1)/M_PI) : ceil((y(1)/M_PI));
+	$ y(1) -= (factor != 0.0) ? factor*M_PI : 0;
 
 ## 3.0 Running the Simulator
 ### 3.1 Laser Data Only
