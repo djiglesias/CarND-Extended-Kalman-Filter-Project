@@ -1,96 +1,53 @@
-# Kalman Filter Project (Sensor Fusion)
-# Term 2 - Project 1
+# Extended Kalman Filter Project (Sensor Fusion)
 
+## 1.0 Make & Run Project (Linux)
+Download the simulator for term 2 [HERE](https://github.com/udacity/self-driving-car-sim/releases/). From the main repository folder compile the code using make and run the project to ensure there were no build errors.
 
-
-
-# Project notes
-## Install & Run
-- from the main repo run 
-- chmod +x install-ubuntu.sh
-- ./install-unbuntu.sh
-- mkdir build && cd build
-- cmake .. && make
-- ./ExtendedKF
-- terminal should pop up.
-- run the simmulator and select the correct channel/project
-- you should see the "connected!"
-
-## Tools.cpp
-
-### Calculate RMSE.
-	// Vector for rmse.
-	VectorXd rmse(4);
-	rsme << 0, 0, 0, 0;
-
-	// Check for divide by zero error.
-	if(estimations.size() == 0){
-	    cout << "CalculateRSME () - Error - Zero length data" << endl;
-	    return rmse;
-	}
-	if(estimations.size() != ground_truth.size()){
-	    cout << "CalculateRSME () - Error - Data lengths not equal" << endl;
-	    return rmse;
-	}
+	$ chmod +x install-ubuntu.sh`
+	$ /install-unbuntu.sh
+	$ mkdir build && cd build
+	$ cmake .. && make
 	
-	// Calculate squared residuals.
-	for (int i=0; i < estimations.size(); i++) {
+If there are no build errors then run the simulator (client) and the Extended Kalman Filter (server) file from the build folder in the project repository. The two programs talk to one another through the uWebSockets on local port 4567.
 
-		VectorXd residual = estimations[i] - ground_truth[i];
+	$ # From the simulator folder.
+	$ ./term2_sim.x86_64
+	$ # From the project folder.
+	$ ./build/ExtendedKF
 
-		residual = residual.array()*residual()
-		rmse += residual;
+From the terminal you should see "Listening to port 4567" until you connect and start the Udacity Simulator. If the connection is successful you should see "Connected!!!" followed by a print out of values.
 
-	}
+## 2.0 Complete the Project Classes
+### 2.1 Tools.cpp
+...
 
-	// Calculate the sample mean.
-	rmse = rmse/estimations.size();
+### 2.2 FusionEKF.cpp
+... must set time on initial measurement else OVF will occur with radar first
 
-	// Calculate the squared root.
-	rmse = rmse.array().sqrt();
-
-	// Return the result.
-	return rmse;
-
-### Calculate Jacobian Matrix.
-
-	// Extract kinematic terms from matrix.
-	MatrixXd Hj(3,4);
-	float px = x_state(0);
-	float py = x_state(1);
-	float vx = x_state(2);
-	float vy = x_state(3);
-
-	// Pre-compute constants for human readability.
-	float c1 = px*px+py*py;
-	float c2 = sqrt(c1);
-	float c3 = (c1*c2);
-
-	// Check for division by zero.
-	if(fabs(c1) < 0.0001){
-		cout << "Tools::CalculateJacobian () - Error - Division by Zero" << endl;
-		return Hj;
-	}
-
-	// Compute the Jacobian Matrix.
-	Hj << (px/c2), (py/c2), 0, 0,
-		  -(py/c1), (px/c1), 0, 0,
-		  py*(vx*py - vy*px)/c3, px*(px*vy - py*vx)/c3, px/c2, py/c2;
-
-	// Return the result.
-	return Hj;
+### 2.3 Kalman_Filter.cpp
+...
 
 
+## 3.0 Running the Simulator
+### 3.1 Laser Data Only
 
-## FusionEKF.cpp
-- init function
--- 
+<p align="center">
+ <img src="./images/data1_laser.gif" width=550>
+</p>
+
+### 3.2 Radar Data Only
+
+<p align="center">
+ <img src="./images/data1_radar.gif" width=550>
+</p>
+
+### 3.3 Sensor Fusion (Both)
+
+<p align="center">
+ <img src="./images/data1_all.gif" width=550>
+</p>
 
 
-
-## Kalman_Filter.cpp
-
-must set time on initial measurement else OVF will occur with radar first
 
 
 RMSE [X, Y, VX, VY]
