@@ -18,7 +18,7 @@ If there are no build errors then run the simulator (client) and the Extended Ka
 From the terminal you should see "Listening to port 4567" until you connect and start the Udacity Simulator. If the connection is successful you should see "Connected!!!" followed by a print out of values.
 
 ## 2.0 Complete the Project Classes
-### 2.1 Tools.cpp
+### 2.1 Tools Class
 #### 2.1.1 Calculate Root Mean Squared Error (RMSE)
 The Tools::CalculateRMSE() function takes two vectors, estimation and ground truth, as inputs and returns a vector of RMSE. For every entry in the vector a residual squared sum is totalled and then divided my the length of the vector. This is a parameter used for determining the quality of the algorithm on tracking the models position as it moves.
 
@@ -51,7 +51,7 @@ The Tools::CalculateJacobian() function is used for converting radar measurement
 	$ }
 
 
-### 2.2 FusionEKF.
+### 2.2 FusionEKF Class
 The FusionEKF class facilitates the input from multiple sources such as laser and radar readings and feeds them into the Kalman filter accordingly. The class constructor initializes the specific matrices for handling the laser and radar measurements during the initialization, prediction, and update steps.
 
 #### 2.2.1 Initialization
@@ -77,7 +77,7 @@ If the measurement input is from the radar then the measurements are converted f
 	$ 	ekf_.Update(measurement_pack.raw_measurements_);
 	$ }
 
-### 2.3 Kalman_Filter.cpp
+### 2.3 Kalman Filter Class
 #### 2.3.1 Predict
 From the Udacity equation sheet, the model state is predicted as follows.
 
@@ -135,7 +135,7 @@ Running the simulator with only radar data by ignoring data samples that are lab
  <img src="./images/data1_radar.gif" width=550>
 </p>
 
-### 3.3 Sensor Fusion (Laser & Data)
+### 3.3 Sensor Fusion (Laser & Radar)
 Running the simulator with both radar and laser data results in a much more accurate estimate of position for both position and velocity. The average RMSE for X/Y/VX/VY were 0.0974, 0.0855, 0.4517, 0.4404 respectively which satisfy the requirements for the project (0.11, 0.11, 0.52, 0.52).
 
 <p align="center">
